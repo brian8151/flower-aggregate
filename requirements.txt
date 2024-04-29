@@ -85,7 +85,6 @@ pytz==2022.1
 pyunormalize==15.1.0
 pywin32==306
 PyYAML==6.0.1
-quickstart-tensorflow @ file:///C:/onyx/jpmc/flower-agent
 referencing==0.35.0
 regex==2024.4.28
 requests==2.31.0
