@@ -36,7 +36,7 @@ setup_env() {
 start_app() {
     setup_env
     echo "Starting Flower agg application..."
-    nohup python -m flower-aggregate > $LOG_PATH/flwr-agg.log 2>&1 &
+    /usr/bin/nohup python -m flower-aggregate > $LOG_PATH/flwr-agg.log 2>&1 &
     echo "Flower agg started in the background, logs: $LOG_PATH/flwr-agg.log"
 }
 
