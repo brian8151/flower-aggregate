@@ -42,16 +42,27 @@ start_app() {
 
 # Define the function to stop the application
 stop_app() {
+    echo "Deactivating virtual environment..."
+    deactivate
+    # After deactivating, ensure system commands are available
+    PATH="/usr/bin:/bin:$PATH"
+    # Try to find the process using the application's distinctive command-line pattern
     pid=$(ps aux | grep -i 'flower-aggregate' | grep -v grep | awk '{print $2}')
+
     if [ ! -z "$pid" ]; then
         echo "Found process $pid, shutting down flower-aggregate..."
-        kill -9 $pid
-        echo "Flower agg stopped."
+        # Use a softer kill signal first, then escalate if necessary
+        kill $pid
+        sleep 2  # Give some time for the process to shut down gracefully
+        # Check if the process is still running and use SIGKILL as a last resort
+        if ps -p $pid > /dev/null; then
+           echo "Process $pid did not terminate, forcing shutdown..."
+           kill -9 $pid
+        fi
+        echo "Flower aggregate stopped."
     else
         echo "No process found for flower-aggregate."
     fi
-    echo "Deactivating virtual environment..."
-    deactivate
 }
 
 # Handle the command line argument
