@@ -14,7 +14,7 @@ cmd=${1:-start}
 setup_env() {
     if [ ! -d "venv" ]; then
         echo "Virtual environment not found. Creating one..."
-        python3 -m venv venv
+        python -m venv venv
         echo "Virtual environment created."
 
         echo "Activating virtual environment..."
