@@ -1,63 +1,48 @@
 #!/bin/bash
 
-PATH=/home/ec2-user/flwr-test/flower-aggregate
-LOG_PATH=/home/ec2-user/flwr-test/
-cd $PATH
+# Configurationi
+APP_DIR_BASE=/home/ec2-user/flwr-test
+APP_DIR=$APP_DIR_BASE/flower-aggregate
+LOG_PATH="/home/ec2-user/flwr-test"  # Ensure this directory exists
+PYTHON_BIN="/usr/local/bin/python3.9"
 
-
-# Print the starting directory
+cd $APP_DIR
 echo "Running from flower-aggregate directory: $(pwd)"
+
 # Default to 'start' if no argument is given
 cmd=${1:-start}
 
-# Define the function to setup the virtual environment and install dependencies
-setup_env() {
-    if [ ! -d "venv" ]; then
-        echo "Virtual environment not found. Creating one..."
-        python -m venv venv
-        echo "Virtual environment created."
-
-        echo "Activating virtual environment..."
-        source venv/bin/activate
-
+# Define the function to install dependencies if needed
+install_deps() {
+    if [ ! -f ".deps_installed" ]; then
         echo "Installing dependencies from requirements.txt..."
-        pip install -r requirements.txt
-
+        $PYTHON_BIN -m pip install -r requirements.txt
+        touch .deps_installed
         echo "Dependencies installed."
     else
-        echo "Virtual environment already exists."
-        echo "Activating virtual environment..."
-        source venv/bin/activate
+        echo "Dependencies already installed."
     fi
 }
 
-
 # Define the function to start the application
 start_app() {
-    setup_env
+    install_deps
+    cd $APP_DIR_BASE
     echo "Starting Flower agg application..."
-    /usr/bin/nohup python -m flower-aggregate > $LOG_PATH/flwr-agg.log 2>&1 &
+    nohup $PYTHON_BIN flower-aggregate > $LOG_PATH/flwr-agg.log 2>&1 &
     echo "Flower agg started in the background, logs: $LOG_PATH/flwr-agg.log"
 }
 
 # Define the function to stop the application
 stop_app() {
-    echo "Deactivating virtual environment..."
-    deactivate
-    # After deactivating, ensure system commands are available
-    PATH="/usr/bin:/bin:$PATH"
-    # Try to find the process using the application's distinctive command-line pattern
-    pid=$(ps aux | grep -i 'flower-aggregate' | grep -v grep | awk '{print $2}')
-
-    if [ ! -z "$pid" ]; then
+    local pid=$(ps aux | grep -i 'flower-aggregate' | grep -v grep | awk '{print $2}')
+    if [[ ! -z "$pid" ]]; then
         echo "Found process $pid, shutting down flower-aggregate..."
-        # Use a softer kill signal first, then escalate if necessary
         kill $pid
-        sleep 2  # Give some time for the process to shut down gracefully
-        # Check if the process is still running and use SIGKILL as a last resort
+        sleep 2
         if ps -p $pid > /dev/null; then
-           echo "Process $pid did not terminate, forcing shutdown..."
-           kill -9 $pid
+            echo "Process $pid did not terminate, forcing shutdown..."
+            kill -9 $pid
         fi
         echo "Flower aggregate stopped."
     else
@@ -79,4 +64,3 @@ case "$cmd" in
         exit 1
         ;;
 esac
-
