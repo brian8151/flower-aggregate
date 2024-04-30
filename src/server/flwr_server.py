@@ -24,13 +24,13 @@ config = ServerConfig(num_rounds=3)
 # Flower ServerApp
 app = ServerApp(config=config,strategy=strategy,)
 
-
-# Legacy mode
-if __name__ == "__main__":
-    from flwr.server import start_server
-
-    start_server(
-        server_address="0.0.0.0:8080",
-        config=config,
-        strategy=strategy,
-    )
+#
+# # Legacy mode
+# if __name__ == "__main__":
+#     from flwr.server import start_server
+#
+#     start_server(
+#         server_address="0.0.0.0:8080",
+#         config=config,
+#         strategy=strategy,
+#     )
