@@ -9,6 +9,7 @@ logger = log.init_logger()
 
 # Define metric aggregation function
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
+    logger.info(" set up weighted_average")
     # Calculate weighted accuracies
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
     examples = [num_examples for num_examples, _ in metrics]
