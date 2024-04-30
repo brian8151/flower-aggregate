@@ -31,7 +31,15 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
 
 # Define strategy
-strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
+# Setup FedAvg with a simple strategy for debugging
+strategy = FedAvg(
+    fraction_fit=1.0,  # Involve all clients in training
+    fraction_eval=1.0,  # Involve all clients in evaluation
+    min_fit_clients=1,  # Minimum clients to participate
+    min_eval_clients=1,  # Minimum clients for evaluation
+    min_available_clients=1,  # Minimum clients that need to be connected
+    evaluate_metrics_aggregation_fn=weighted_average
+)
 
 # Define config
 config = ServerConfig(num_rounds=3)
