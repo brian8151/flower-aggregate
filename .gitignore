@@ -9,4 +9,4 @@ logs
 *.iml
 *.pem
 logs/
-env/
+venv/
