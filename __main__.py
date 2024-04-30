@@ -8,11 +8,11 @@ logger = log.init_logger()
 if __name__ == "__main__":
     logger.info("Starting the FLWR server with the specified configuration and strategy.")
     try:
+        logger.info("Server is about to start.")
         start_server(
             server_address="0.0.0.0:8080",
             config=config,
             strategy=strategy,
         )
-        logger.info("Server started successfully.")
     except Exception as e:
         logger.error(f"An error occurred when starting the server: {e}")
