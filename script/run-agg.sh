@@ -29,8 +29,8 @@ start_app() {
     install_deps
     cd $APP_DIR_BASE
     echo "Starting Flower agg application..."
-    nohup $PYTHON_BIN flower-aggregate > $LOG_PATH/flwr-agg.log 2>&1 &
-    echo "Flower agg started in the background, logs: $LOG_PATH/flwr-agg.log"
+    nohup $PYTHON_BIN flower-aggregate 2>&1 &
+    echo "Flower agg started in the background"
 }
 
 # Define the function to stop the application
