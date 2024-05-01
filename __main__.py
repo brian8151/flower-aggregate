@@ -6,7 +6,7 @@ from flwr.server import start_server, ServerConfig
 from flwr.server.strategy import FedAvg
 from src.util import log
 logger = log.init_logger()
-
+import pdb; pdb.set_trace()
 
 def start_flwr_server():
     logger.info("Starting the FLWR server with the specified configuration and strategy.")
