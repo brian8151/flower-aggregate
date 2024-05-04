@@ -9,10 +9,8 @@ from flwr.server.server_config import ServerConfig
 from flwr.server.strategy import Strategy
 from logging import ERROR, INFO, WARN
 from flwr.common.logger import log
-from flwr.server.superlink.fleet.grpc_bidi.grpc_server  import (
-    generic_create_grpc_server,
-    start_grpc_server,
-)
+
+from onyx_grpc_server import start_grpc_server
 
 ADDRESS_DRIVER_API = "0.0.0.0:9091"
 ADDRESS_FLEET_API_GRPC_RERE = "0.0.0.0:9092"
