@@ -76,6 +76,14 @@ class OnyxClientManager(ClientManager):
             already registered or can not be registered for any reason.
         """
         log(INFO, "[ONYX Client register]")
+        if isinstance(client, GrpcClientProxy):
+            node_id = getattr(client, "node_id", None)  # Get node_id attribute or None if not found
+            bridge_info = getattr(client, "bridge", None)  # Get bridge attribute or None if not found
+            log(INFO, "Client Info: GrpcClientProxy - CID: %s, Node ID: %s, Bridge Info: %s", client.cid, node_id,
+                bridge_info)
+        else:
+            log(INFO, "Client Info: ClientProxy - CID: %s", client.cid)
+
         if client.cid in self.clients:
             return False
 
