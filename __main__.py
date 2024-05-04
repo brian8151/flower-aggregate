@@ -1,12 +1,13 @@
 from typing import List, Tuple
 
-from flwr.server import ServerApp, ServerConfig
+# from flwr.server import ServerApp, ServerConfig
+from flwr.server import ServerConfig
 from flwr.common import Metrics
-from flwr.server import start_server
+# from flwr.server import start_server
 from onyx_client_manager import OnyxClientManager
 from onyx_custom_strategy import OnyxCustomStrategy
 from onyx_flower_server import OnyxFlowerServer
-
+from onyx_fl_app import start_server
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     try:
