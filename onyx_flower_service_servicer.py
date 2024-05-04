@@ -9,8 +9,8 @@ from flwr.proto.transport_pb2 import (  # pylint: disable=E0611
     ServerMessage,
 )
 
-from flwr.server.grpc_server import default_bridge_factory, default_grpc_client_proxy_factory
-from flwr.server.grpc_client_proxy import GrpcClientProxy
+from flwr.server.superlink.fleet.grpc_bidi.grpc_server import default_bridge_factory, default_grpc_client_proxy_factory
+from flwr.server.superlink.fleet.grpc_bidi.grpc_client_proxy import GrpcClientProxy
 from flwr.server.client_manager import ClientManager, register_client_proxy
 from flwr.server.superlink.fleet.grpc_bidi.grpc_bridge import (
     GrpcBridge,
