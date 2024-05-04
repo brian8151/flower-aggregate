@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 from flwr.server import ServerApp, ServerConfig
-from flwr.server.strategy import FedAvg
 from flwr.common import Metrics
 from flwr.server import start_server
 from onyx_client_manager import OnyxClientManager
