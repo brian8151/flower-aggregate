@@ -18,6 +18,7 @@ from flwr.server.superlink.fleet.grpc_bidi.grpc_bridge import (
 )
 from logging import ERROR, INFO, WARN
 from flwr.common.logger import log
+from flwr.common.typing import Config
 class OnyxFlowerServiceServicer(FlowerServiceServicer):
     """Custom FlowerServiceServicer for Onyx."""
 
@@ -60,6 +61,15 @@ class OnyxFlowerServiceServicer(FlowerServiceServicer):
         client_proxy = self.client_proxy_factory(cid, bridge)
         is_success = register_client_proxy(self.client_manager, client_proxy, context)
 
+        request_properties: Config = {"tensor_type": "str"}
+        ins: flwr.common.GetPropertiesIns = flwr.common.GetPropertiesIns(
+            config=request_properties
+        )
+        # Execute
+        value: flwr.common.GetPropertiesRes = client_proxy.get_properties(
+            ins, timeout=None, group_id=0
+        )
+        log(INFO, "=====> OnyxFlowerServiceServicer value (%s)  <=====", value)
         if is_success:
             # Get iterators
             client_message_iterator = TimeoutIterator(
