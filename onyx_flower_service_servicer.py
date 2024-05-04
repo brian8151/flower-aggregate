@@ -3,14 +3,14 @@ import grpc
 import uuid
 from typing import Callable, Iterator
 from iterators import TimeoutIterator
-from flwr.server.superlink.fleet.grpc_bidi.flower_service_servicer import FlowerServiceServicer, default_bridge_factory, default_grpc_client_proxy_factory
+from flwr.server.superlink.fleet.grpc_bidi.flower_service_servicer import FlowerServiceServicer, default_bridge_factory, default_grpc_client_proxy_factory, register_client_proxy
 from flwr.proto.transport_pb2 import (  # pylint: disable=E0611
     ClientMessage,
     ServerMessage,
 )
 
 from flwr.server.superlink.fleet.grpc_bidi.grpc_client_proxy import GrpcClientProxy
-from flwr.server.client_manager import ClientManager, register_client_proxy
+from flwr.server.client_manager import ClientManager
 from flwr.server.superlink.fleet.grpc_bidi.grpc_bridge import (
     GrpcBridge,
     InsWrapper,
