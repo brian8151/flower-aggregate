@@ -3,7 +3,7 @@ import grpc
 import uuid
 from typing import Callable, Iterator
 from iterators import TimeoutIterator
-from flower_pb2_grpc import FlowerServiceServicer
+from flwr.server.superlink.fleet.grpc_bidi.flower_service_servicer import FlowerServiceServicer
 from flwr.proto.transport_pb2 import (  # pylint: disable=E0611
     ClientMessage,
     ServerMessage,
