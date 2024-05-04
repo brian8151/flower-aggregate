@@ -43,6 +43,7 @@ oauthlib==3.2.2
 opt-einsum==3.3.0
 packaging==24.0
 pandas==2.2.2
+pillow==10.3.0
 protobuf==4.25.3
 pyarrow==16.0.0
 pyarrow-hotfix==0.6
@@ -59,6 +60,7 @@ requests-oauthlib==2.0.0
 rich==13.7.1
 rsa==4.9
 shellingham==1.5.4
+scikit-learn==1.4.2
 six==1.16.0
 tensorboard==2.15.2
 tensorboard-data-server==0.7.2
