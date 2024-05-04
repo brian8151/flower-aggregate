@@ -59,17 +59,8 @@ class OnyxFlowerServiceServicer(FlowerServiceServicer):
         log(INFO, "=====> OnyxFlowerServiceServicer - Setup CID (%s)  <=====", cid)
         bridge = self.grpc_bridge_factory()
         client_proxy = self.client_proxy_factory(cid, bridge)
-        is_success = register_client_proxy(self.client_manager, client_proxy, context)
 
-        request_properties: Config = {"tensor_type": "str"}
-        ins: flwr.common.GetPropertiesIns = flwr.common.GetPropertiesIns(
-            config=request_properties
-        )
-        # Execute
-        value: flwr.common.GetPropertiesRes = client_proxy.get_properties(
-            ins, timeout=None, group_id=0
-        )
-        log(INFO, "=====> OnyxFlowerServiceServicer value (%s)  <=====", value)
+        is_success = register_client_proxy(self.client_manager, client_proxy, context)
         if is_success:
             # Get iterators
             client_message_iterator = TimeoutIterator(
