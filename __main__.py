@@ -1,25 +1,47 @@
-""" Main """
+from typing import List, Tuple
 
-from src.server.flwr_server import app, config, strategy
+from flwr.server import ServerApp, ServerConfig
+from flwr.common import Metrics
 from flwr.server import start_server
-from flwr.server import start_server, ServerConfig
-from flwr.server.strategy import FedAvg
-from src.util import log
-import flwr as fl
+from onyx_client_manager import OnyxClientManager
+from onyx_custom_strategy import OnyxCustomStrategy
+from onyx_flower_server import OnyxFlowerServer
 
 
-logger = log.init_logger()
-
-def start_flwr_server():
-    logger.info("Attempting to start a minimal FLWR server for debugging...")
+def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     try:
-        # Minimal strategy setup
-        # start_server(server_address="0.0.0.0:8080")
-        fl.server.start_server(config=fl.server.ServerConfig(num_rounds=3))
-        logger.info("If this is logged, the server started and didn't block as expected.")
+        accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
+        examples = [num_examples for num_examples, _ in metrics]
 
+        print("Detailed Client Metrics:")
+        print("Client | Examples | Accuracy")
+
+        for i, (num_examples, m) in enumerate(metrics):
+            print(f"Client {i+1} | {num_examples} | {m['accuracy']:.4f}")
+
+        weighted_avg_accuracy = sum(accuracies) / sum(examples)
+        print(f"Weighted Average Accuracy: {weighted_avg_accuracy:.4f}")
+        return {"accuracy": weighted_avg_accuracy}
     except Exception as e:
-        logger.error("An error occurred during minimal server start-up: %s", e, exc_info=True)
+        print(f"Error in weighted_average: {e}")
+        return {"accuracy": 0}  # Return a default or fallback value
 
+# Define strategy
+strategy = OnyxCustomStrategy(evaluate_metrics_aggregation_fn=weighted_average)
+# strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
+clientManager = OnyxClientManager()
+server = OnyxFlowerServer(clientManager, strategy)
+# Define config
+config = ServerConfig(num_rounds=1)
+# Proxy for start_server
+
+
+# Legacy mode
 if __name__ == "__main__":
-    start_flwr_server()
+    start_server(
+        server_address="0.0.0.0:8080",
+        server=server,
+        config=config,
+        strategy=strategy,
+        client_manager=clientManager
+    )
