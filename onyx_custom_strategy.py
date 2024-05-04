@@ -50,22 +50,22 @@ class OnyxCustomStrategy(FedAvg):
 
         return evaluate_ins_list
 
-    def aggregate_fit(
-            self,
-            server_round: int,
-            results: List[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes]],
-            failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
-        ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
-
-            # Call aggregate_fit from base class (FedAvg) to aggregate parameters and metrics
-            aggregated_parameters, aggregated_metrics = super().aggregate_fit(server_round, results, failures)
-
-            if aggregated_parameters is not None:
-                # Convert `Parameters` to `List[np.ndarray]`
-                aggregated_ndarrays: List[np.ndarray] = fl.common.parameters_to_ndarrays(aggregated_parameters)
-                print("Aggregated parameters:")
-                print(aggregated_parameters)
-                log(INFO, " -------> Saving round (%s) aggregated_ndarrays... <-----", server_round)
-                # Save aggregated_ndarrays
-                np.savez(f"round-{server_round}-weights.npz", *aggregated_ndarrays)
-            return aggregated_parameters, aggregated_metrics
+    # def aggregate_fit(
+    #         self,
+    #         server_round: int,
+    #         results: List[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes]],
+    #         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
+    #     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+    #
+    #         # Call aggregate_fit from base class (FedAvg) to aggregate parameters and metrics
+    #         aggregated_parameters, aggregated_metrics = super().aggregate_fit(server_round, results, failures)
+    #
+    #         if aggregated_parameters is not None:
+    #             # Convert `Parameters` to `List[np.ndarray]`
+    #             aggregated_ndarrays: List[np.ndarray] = fl.common.parameters_to_ndarrays(aggregated_parameters)
+    #             print("Aggregated parameters:")
+    #             print(aggregated_parameters)
+    #             log(INFO, " -------> Saving round (%s) aggregated_ndarrays... <-----", server_round)
+    #             # Save aggregated_ndarrays
+    #             np.savez(f"round-{server_round}-weights.npz", *aggregated_ndarrays)
+    #         return aggregated_parameters, aggregated_metrics
