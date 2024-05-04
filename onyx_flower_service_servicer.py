@@ -49,7 +49,12 @@ class OnyxFlowerServiceServicer(FlowerServiceServicer):
         # When running Flower behind a proxy, the peer can be the same for
         # different clients, so instead of `cid: str = context.peer()` we
         # use a `UUID4` that is unique.
-        cid: str = uuid.uuid4().hex
+        # Get the peer address from the context
+        peer_address = context.peer()
+        # Generate a UUID4
+        uuid_str = uuid.uuid4().hex
+        # Concatenate the peer address and the UUID4 to create a unique cid
+        cid = f"{peer_address}_{uuid_str}"
         log(INFO, "=====> OnyxFlowerServiceServicer - Setup CID (%s)  <=====", cid)
         bridge = self.grpc_bridge_factory()
         client_proxy = self.client_proxy_factory(cid, bridge)
