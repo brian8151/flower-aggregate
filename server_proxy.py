@@ -28,16 +28,21 @@ strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
 # Define config
 config = ServerConfig(num_rounds=1)
 
-# Flower ServerApp
-app = ServerApp(
-    config=config,
-    strategy=strategy,
-)
+# Proxy for start_server
+def start_server_proxy(*args, **kwargs):
+    print("Intercepting start_server...")
+    print("Received arguments:")
+    print("args:", args)
+    print("kwargs:", kwargs)
+    # Add your custom logic here
+    # You can modify args or kwargs as needed
+    return start_server(*args, **kwargs)
+
+# Replace import statement with proxy function
+start_server = start_server_proxy
 
 # Legacy mode
 if __name__ == "__main__":
-    from flwr.server import start_server
-
     start_server(
         server_address="0.0.0.0:8080",
         config=config,
