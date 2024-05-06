@@ -3,11 +3,6 @@ from typing import List, Tuple
 from flwr.server import ServerApp, ServerConfig
 from flwr.server.strategy import FedAvg
 from flwr.common import Metrics
-from flwr.server import start_server
-from onyx_client_manager import OnyxClientManager
-from onyx_custom_strategy import OnyxCustomStrategy
-from onyx_flower_server import OnyxFlowerServer
-from flwr.server.strategy import FedAvg
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     try:
@@ -29,20 +24,22 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
 # Define strategy
 strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
-# strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
-clientManager = OnyxClientManager()
-server = OnyxFlowerServer(clientManager, strategy)
+
 # Define config
 config = ServerConfig(num_rounds=1)
-# Proxy for start_server
 
+# Flower ServerApp
+app = ServerApp(
+    config=config,
+    strategy=strategy,
+)
 
 # Legacy mode
 if __name__ == "__main__":
+    from flwr.server import start_server
+
     start_server(
         server_address="0.0.0.0:8080",
-        server=server,
         config=config,
         strategy=strategy,
-        client_manager=clientManager
     )
