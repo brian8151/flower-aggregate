@@ -7,7 +7,7 @@ from flwr.server import start_server
 from onyx_client_manager import OnyxClientManager
 from onyx_custom_strategy import OnyxCustomStrategy
 from onyx_flower_server import OnyxFlowerServer
-
+from flwr.server.strategy import FedAvg
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     try:
@@ -28,7 +28,7 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         return {"accuracy": 0}  # Return a default or fallback value
 
 # Define strategy
-strategy = OnyxCustomStrategy(evaluate_metrics_aggregation_fn=weighted_average)
+strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
 # strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
 clientManager = OnyxClientManager()
 server = OnyxFlowerServer(clientManager, strategy)

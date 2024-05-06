@@ -31,6 +31,7 @@ class OnyxCustomStrategy(FedAvg):
 
         for client, fit_ins in fit_ins_list:
             client_properties = client.properties
+            fit_ins.config["client.cid"] =  client.cid
             #print(f"OnyxCustomStrategy [Server] Client ID: {client.cid}, Properties: {client_properties}")
             log(INFO,"OnyxCustomStrategy Client ID (%s) Properties (%s).", client.cid,client_properties)
         return fit_ins_list
