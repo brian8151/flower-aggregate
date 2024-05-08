@@ -1,49 +1,23 @@
-from typing import List, Tuple
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from src.router.flower_router import flower_router
 
-# from flwr.server import ServerApp, ServerConfig
-from flwr.server import ServerConfig
-from flwr.common import Metrics
-# from flwr.server import start_server
-from onyx_client_manager import OnyxClientManager
-from onyx_custom_strategy import OnyxCustomStrategy
-from flwr.server.strategy import FedAvg
-from onyx_flower_server import OnyxFlowerServer
-from onyx_fl_app import start_server
-
-def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    try:
-        accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-        examples = [num_examples for num_examples, _ in metrics]
-
-        print("Detailed Client Metrics:")
-        print("Client | Examples | Accuracy")
-
-        for i, (num_examples, m) in enumerate(metrics):
-            print(f"Client {i+1} | {num_examples} | {m['accuracy']:.4f}")
-
-        weighted_avg_accuracy = sum(accuracies) / sum(examples)
-        print(f"Weighted Average Accuracy: {weighted_avg_accuracy:.4f}")
-        return {"accuracy": weighted_avg_accuracy}
-    except Exception as e:
-        print(f"Error in weighted_average: {e}")
-        return {"accuracy": 0}  # Return a default or fallback value
-
-# Define strategy
-strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
-# strategy = FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
-clientManager = OnyxClientManager()
-server = OnyxFlowerServer(clientManager, strategy)
-# Define config
-config = ServerConfig(num_rounds=1)
-# Proxy for start_server
+def create_app():
+    app = FastAPI()
+    # Set up CORS
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Allows all origins
+        allow_credentials=True,
+        allow_methods=["*"],  # Allows all methods
+        allow_headers=["*"],  # Allows all headers
+    )
+    app.include_router(flower_router, prefix="/flwr")
+    return app
 
 
 # Legacy mode
 if __name__ == "__main__":
-    start_server(
-        server_address="0.0.0.0:8080",
-        server=server,
-        config=config,
-        strategy=strategy,
-        client_manager=clientManager
-    )
+    app = create_app()
+    uvicorn.run(app, host="0.0.0.0", port=8000)

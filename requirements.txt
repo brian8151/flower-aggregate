@@ -79,3 +79,6 @@ wrapt==1.14.1
 xxhash==3.4.1
 yarl==1.9.4
 zipp==3.18.1
+fastapi==0.103.2
+uvicorn==0.22.0
+pydantic==2.5.3
