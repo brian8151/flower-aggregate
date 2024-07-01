@@ -16,11 +16,26 @@
 from pydantic import BaseModel, Field
 from typing import Any, Dict
 
-class MessageRequest(BaseModel):
+class ClientMessageResponse(BaseModel):
     message_id: str = Field(..., description="Unique identifier for the message")
     client_id: str = Field(..., description="Identifier for the client sending the message")
     strategy: str = Field(..., description="Federated learning strategy")
     parameters: Any  = Field(..., description="Parameters for the model weight")
     metrics: Dict[str, float] = Field(..., description="Metrics reporting from client")
     num_examples: int = Field(..., description="Number of examples used in the client's dataset")
+    loss: float = Field(..., description="The loss value from the model evaluation")
     properties: Dict[str, Any] = Field(..., description="Additional properties")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "message_id": "1234",
+                "client_id": "client1",
+                "strategy": "FedAvg",
+                "parameters": {"param1": 0.5, "param2": [1, 2, 3]},
+                "metrics": {"accuracy": 0.95},
+                "num_examples": 1000,
+                "loss" : 0.05,
+                "properties": {"additional_info": "extra data"}
+            }
+        }

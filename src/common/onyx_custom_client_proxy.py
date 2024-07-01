@@ -17,7 +17,7 @@ from flwr.common import (
     Status,
 )
 
-class CustomFlowerClientProxy(ClientProxy):
+class CustomClientProxy(ClientProxy):
     """Subclass of ClientProxy."""
 
     def get_properties(
