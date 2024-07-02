@@ -19,7 +19,7 @@ async def check_health():
         return {"message": "Service is not healthy", "success": False}
 
 
-@aggregate_router.post("/aggregate")
+@aggregate_router.post("/run-aggregate")
 async def aggregate(request: AggregatorRequest):
     try:
         aggregator_runner = AggregatorRunner()
