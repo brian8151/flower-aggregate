@@ -36,12 +36,16 @@ class AggregatorRunner:
                 weights_collected = []
                 metrics_collected.append((num_examples, metrics))
                 weights_collected.append((num_examples, weights))
+                logger.info(f"weights_collected: {weights_collected}")
+                logger.info(f"metrics_collected: {metrics_collected}")
                 weights_only = [weight for _, weights in weights_collected for weight in weights]
+                logger.info(f"loop weights_only")
                 for idx, weight in enumerate(weights_only):
                     print(f"Weight {idx} shape: {weight.shape}, dtype: {weight.dtype}")
-
+                logger.info(f"weights_only ndarrays_to_parameters")
                 agg_parameters = ndarrays_to_parameters(weights_only)
                 # Aggregate metrics
+                logger.info(f"weighted_average")
                 aggregated_metrics = weighted_average(metrics_collected)
                 print("Aggregated Metrics:", aggregated_metrics)
                 # Assuming agg_parameters are now correctly processed
