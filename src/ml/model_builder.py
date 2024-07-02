@@ -6,7 +6,6 @@ import pickle
 import gzip
 import base64
 
-from src.repository.model.model_track_repository import get_model_track_record
 from src.util import log
 
 logger = log.init_logger()
@@ -70,34 +69,3 @@ def decompress_weights(weights_encoded):
     except Exception as e:
         logger.error(f"Error during decompression: {e}")
         raise
-
-
-def build_model(domain_type):
-    logger.info("get model from cache: {0}".format(domain_type))
-    model_track_record = get_model_track_record(domain_type)
-    model = load_model_from_json_string(model_track_record[0])
-    logger.info("success loaded model: {0}".format(domain_type))
-    # Building the model
-    return model
-
-
-def client_evaluate(model, x_test, y_test):
-    logger.info("client_evaluate")
-    loss, accuracy = model.evaluate(x_test, y_test)
-    return loss, len(x_test), {"accuracy": accuracy}
-
-
-def client_evaluate_params(model, parameters, x_test, y_test):
-    logger.info("client_evaluate with weights")
-    model.set_weights(parameters)
-    loss, accuracy = model.evaluate(x_test, y_test)
-    return loss, len(x_test), {"accuracy": accuracy}
-
-
-def model_compile(model):
-    # Compile the model
-    model.compile(
-        optimizer='adam',
-        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-        metrics=['accuracy']
-    )

@@ -1,6 +1,6 @@
 import numpy as np
 from src.util import log
-from src.repository.model import get_model_client_training_record
+from src.repository.model.model_data_repositoty import get_model_client_training_record
 from src.ml.model_builder import decompress_weights
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.server.client_proxy import ClientProxy
