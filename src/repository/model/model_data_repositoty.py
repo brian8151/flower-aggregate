@@ -4,108 +4,50 @@ from src.util import log
 logger = log.init_logger()
 
 
-def get_model_feature_record(domain, batch_id):
+def get_model_client_training_record(workflow_trace_id, domain):
     """
-    Constructs and executes a dynamic SQL query to retrieve records from the model_data_features table
-    based on the specified domain and batch_id.
+    Retrieve the training record for a given domain and workflow trace ID.
 
-    Args:
-        domain (str): The domain to filter the records.
-        batch_id (str): The batch_id to filter the records.
+    This function fetches the client training record from the database
+    by executing an SQL query that joins the `model_client_training_result`
+    and `metrics` tables. The query returns a single row that matches the
+    provided `workflow_trace_id`.
+
+    Parameters:
+    domain (str): The domain for which the record is being retrieved.
+    workflow_trace_id (str): The unique identifier for the workflow trace.
 
     Returns:
-        list: A list of tuples representing the records retrieved from the database.
+    dict: A dictionary containing the client training record with keys:
+          - 'client_id': ID of the client
+          - 'model_id': ID of the model
+          - 'parameters': Model parameters
+          - 'loss': Training loss
+          - 'num_examples': Number of examples used in training
+          - 'accuracy': Model accuracy
+    None: If no record is found for the given `workflow_trace_id`.
     """
-    # Construct the SQL query to retrieve db_table, id_field, and feature_field based on the domain
     sql = """
-        SELECT db_table, id_field, feature_field FROM model_data_features WHERE domain='{0}' AND model='{1}' AND status='Active'  ORDER BY seq_num""".format(
-        domain, domain)
-    logger.info("get model_data_features sql: {0}".format(sql))
+        SELECT mr.client_id, mr.model_id, mr.parameters, mr.loss, mr.num_examples, m.accuracy  
+        FROM model_client_training_result mr, metrics m
+        WHERE workflow_trace_id='{0}' AND mr.metrics_id = m.id
+        LIMIT 1
+    """.format(workflow_trace_id)
+
     # Execute the query and fetch the results
     rows = DBConnection.execute_query(sql)
-    logger.info("get model_data_features rows: {0}".format(len(rows)))
+    logger.info("get_model_client_training_record rows: {0}".format(len(rows)))
+
     if rows:
-        # Extract the table name and id field from the first row
-        db_table = rows[0][0]
-        id_field = rows[0][1]
-
-        # Extract the feature fields from the remaining rows
-        feature_fields = [row[2] for row in rows]
-
-        # Construct the SELECT clause by joining the feature fields
-        select_fields = [id_field] + feature_fields
-        select_clause = ", ".join(select_fields)
-        logger.info("start to build dynamic query")
-        # Construct the dynamic SQL query to retrieve records based on the batch_id
-        dynamic_query = f"SELECT {select_clause} FROM {db_table} WHERE batch_id='{batch_id}'"
-        logger.info("build predict dynamic query: {0}".format(len(dynamic_query)))
-        # Print the dynamic query for debugging purposes
-        print(dynamic_query)
-        # Execute the dynamic query and fetch the results
-        result = DBConnection.execute_query(dynamic_query)
-        # Return the results
-        logger.info("get dynamic query result: {0}".format(len(result)))
-        return result
+        record = rows[0]
+        return {
+            "client_id": record[0],
+            "model_id": record[1],
+            "parameters": record[2],
+            "loss": record[3],
+            "num_examples": record[4],
+            "accuracy": record[5]
+        }
     else:
-        print("No active features found for the specified domain and model.")
-
-    return []
-
-
-def get_model_training_record(domain, batch_id):
-    """
-    Constructs and executes a dynamic SQL query to retrieve records from the model_data_features table
-    based on the specified domain and batch_id, including joined results from model_predict_data and model_feedback.
-
-    Args:
-        domain (str): The domain to filter the records.
-        batch_id (str): The batch_id to filter the records.
-
-    Returns:
-        list: A list of tuples representing the records retrieved from the database.
-    """
-    # Construct the SQL query to retrieve db_table, id_field, and feature_field based on the domain
-    sql = """
-        SELECT db_table, id_field, feature_field 
-        FROM model_data_features 
-        WHERE domain='{0}' AND model='{1}' AND status='Active'  
-        ORDER BY seq_num""".format(domain, domain)
-    logger.info("get model_data_features sql: {0}".format(sql))
-
-    # Execute the query and fetch the results
-    rows = DBConnection.execute_query(sql)
-    logger.info("get model_data_features rows: {0}".format(len(rows)))
-
-    if rows:
-        # Extract the table name and id field from the first row
-        db_table = rows[0][0]
-        id_field = rows[0][1]
-
-        # Extract the feature fields from the remaining rows
-        feature_fields = [row[2] for row in rows]
-
-        # Construct the SELECT clause by joining the feature fields
-        select_fields = [id_field] + feature_fields
-        select_clause = ", ".join(select_fields)
-        logger.info("start to build dynamic query")
-
-        # Construct the dynamic SQL query to retrieve records based on the batch_id and join with model_predict_data and model_feedback
-        dynamic_query = f"""
-        SELECT {select_clause}, mdata.result, mdata.is_correct, mdata.score 
-        FROM {db_table} data
-        JOIN (
-            SELECT mpd.item_id, mpd.result, mf.is_correct, mf.score 
-            FROM model_predict_data mpd
-            LEFT JOIN model_feedback mf ON mf.model_data_id = mpd.id
-        ) mdata ON data.{id_field} = mdata.item_id
-        WHERE data.batch_id = '{batch_id}'
-        """
-        logger.info("build training dynamic query: {0}".format(dynamic_query))
-
-        # Print the dynamic query for debugging purposes
-        print(dynamic_query)
-        # Execute the dynamic query and fetch the results
-        result = DBConnection.execute_query(dynamic_query)
-        # Return the results
-        logger.info("get dynamic query result: {0}".format(len(result)))
-        return result
+        logger.error("No record found for domain: {0}, workflow_trace_id: {1}".format(domain, workflow_trace_id))
+        return None

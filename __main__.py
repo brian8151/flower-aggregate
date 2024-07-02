@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from src.router.agent_router import agent_router
+from src.router.aggregate_router import aggregate_router
 import logging
 import sys
 from os.path import dirname as opd, realpath as opr
@@ -20,7 +20,7 @@ def create_app():
     @app.on_event("startup")
     def on_startup():
         try:
-            logging.info("Aikya FL Client started and is listening on http://0.0.0.0:7000")
+            logging.info("Aikya FL Server started and is listening on http://0.0.0.0:7000")
             print_tensorflow_version()
         except Exception as e:
             logging.error("Unexpected error: %s", e)
@@ -37,7 +37,7 @@ def create_app():
         allow_methods=["*"],  # Allows all methods
         allow_headers=["*"],  # Allows all headers
     )
-    app.include_router(agent_router, prefix="/agent/api")
+    app.include_router(aggregate_router, prefix="/aggregate/api")
     return app
 
 
