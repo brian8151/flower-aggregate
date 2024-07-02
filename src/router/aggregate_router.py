@@ -2,6 +2,7 @@ from http.client import HTTPException
 
 from fastapi import APIRouter
 from src.service.aggregator_runner_service import AggregatorRunner
+from src.model.aggregate_request import AggregatorRequest
 from src.util import log
 
 logger = log.init_logger()
