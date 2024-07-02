@@ -1,9 +1,6 @@
 from http.client import HTTPException
 
 from fastapi import APIRouter
-
-from src.model.aggregate_request import PredictRequest, TraningRequest, ModelInitRequest
-from src.datamodel.weight_request import WeightRequest, WeightModelRequest
 from src.service.aggregator_runner_service import AggregatorRunner
 from src.util import log
 
