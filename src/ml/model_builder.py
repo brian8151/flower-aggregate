@@ -52,15 +52,33 @@ def compress_weights(weights):
 
 
 def decompress_weights(weights_encoded):
+    """
+    Decompress the model weights using base64, gzip, and pickle.
+
+    Args:
+        weights_encoded (str): The compressed and encoded weights.
+
+    Returns:
+        The decompressed model weights.
+    """
     logger.info(f"Decompressing weights. Input type: {type(weights_encoded)}, size: {len(weights_encoded)}")
     try:
         # Step 1: Decode from base64
         weights_compressed = base64.b64decode(weights_encoded)
-        logger.info(f"Decoded weights. Type: {type(weights_compressed)}, size: {len(weights_compressed)}")
+        logger.debug(f"Decoded weights. Type: {type(weights_compressed)}, size: {len(weights_compressed)}")
 
-        # Step 2: Decompress using gzip
-        weights_serialized = gzip.decompress(weights_compressed)
-        logger.info(f"Decompressed weights. Type: {type(weights_serialized)}, size: {len(weights_serialized)}")
+        # Step 2: Check if data is gzip compressed
+        if is_gzip_compressed(weights_compressed):
+            logger.info("Data is gzip compressed. Proceeding with gzip decompression.")
+            try:
+                weights_serialized = gzip.decompress(weights_compressed)
+                logger.info(f"Decompressed weights. Type: {type(weights_serialized)}, size: {len(weights_serialized)}")
+            except OSError as e:
+                logger.error(f"Error during gzip decompression: {e}")
+                raise
+        else:
+            logger.info("Data is not gzip compressed. Skipping gzip decompression.")
+            weights_serialized = weights_compressed
 
         # Step 3: Deserialize using pickle
         weights = pickle.loads(weights_serialized)
@@ -69,3 +87,15 @@ def decompress_weights(weights_encoded):
     except Exception as e:
         logger.error(f"Error during decompression: {e}")
         raise
+
+def is_gzip_compressed(data):
+    """
+    Check if the data is in gzip format.
+
+    Args:
+        data (bytes): The data to check.
+
+    Returns:
+        bool: True if the data is gzip compressed, False otherwise.
+    """
+    return data[:2] == b'\x1f\x8b'
