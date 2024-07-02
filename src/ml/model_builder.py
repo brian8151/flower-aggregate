@@ -56,7 +56,7 @@ def decompress_weights(weights_encoded):
     try:
         # Step 1: Decode from base64
         weights_compressed = base64.b64decode(weights_encoded)
-        logger.debug(f"Decoded weights. Type: {type(weights_compressed)}, size: {len(weights_compressed)}")
+        logger.info(f"Decoded weights. Type: {type(weights_compressed)}, size: {len(weights_compressed)}")
 
         # Step 2: Decompress using gzip
         weights_serialized = gzip.decompress(weights_compressed)
