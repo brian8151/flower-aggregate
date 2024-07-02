@@ -25,12 +25,12 @@ class AggregatorRunner:
             if training_record:
                 logger.info(f"Retrieved training record: {training_record}")
                 client_id = training_record['client_id']
-                weights_encoded = training_record['parameters']
+                weights = training_record['parameters']
                 num_examples = training_record['num_examples']
                 loss = training_record['loss']
 
                 # Deserialize parameters
-                weights = decompress_weights(weights_encoded)
+                #weights = decompress_weights(weights_encoded)
                 metrics = {"accuracy": training_record['accuracy']}
                 metrics_collected = []
                 weights_collected = []
