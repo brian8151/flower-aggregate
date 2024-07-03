@@ -23,17 +23,22 @@ class AggregatorRunner:
             training_record = get_model_client_training_record(workflow_trace_id, domain)
             if training_record:
                 logger.info(f"Retrieved training record: {training_record}")
+                logger.info(f"Training record keys: {list(training_record.keys())}")
                 client_id = training_record['client_id']
                 weights_encoded = training_record['parameters']
                 num_examples = training_record['num_examples']
-                loss = training_record['loss']
+                accuracy = training_record.get('accuracy')
+
+                if not all([client_id, weights_encoded, num_examples, accuracy is not None]):
+                    logger.error("Missing required keys in training_record")
+                    raise KeyError("Missing required keys in training_record")
 
                 # Decompress weights
                 decompressed_weights = decompress_weights(weights_encoded)
                 ser_parameters = ndarrays_to_parameters(decompressed_weights)
                 weights_as_ndarrays = parameters_to_ndarrays(ser_parameters)
 
-                metrics = {"accuracy": training_record['accuracy']}
+                metrics = {"accuracy": accuracy}
                 metrics_collected = []
                 weights_collected = []
                 metrics_collected.append((num_examples, metrics))
@@ -127,8 +132,19 @@ def format_metrics(metrics):
     """Format metrics into a readable string."""
     return "\n".join([f"{key}: {value}" for key, value in metrics.items()])
 
+
 def weighted_metrics_average(metrics):
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
-    losses = [num_examples * m["loss"] for num_examples, m in metrics]
+    # Handle missing loss keys
+    losses = [num_examples * m.get("loss", 0) for num_examples, m in metrics]
     examples = [num_examples for num_examples, _ in metrics]
-    return {"accuracy": sum(accuracies) / sum(examples), "loss": sum(losses) / sum(examples)}
+
+    total_examples = sum(examples)
+    avg_accuracy = sum(accuracies) / total_examples
+    avg_loss = sum(losses) / total_examples if sum(losses) > 0 else None
+
+    result = {"accuracy": avg_accuracy}
+    if avg_loss is not None:
+        result["loss"] = avg_loss
+
+    return result
