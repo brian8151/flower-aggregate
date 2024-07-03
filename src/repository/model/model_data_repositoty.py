@@ -8,8 +8,10 @@ def get_model_info(domain):
     """
     Returns an empty tuple if no record is found.
     """
-    sql = "SELECT id, model_name, model_definition FROM model_definition WHERE domain = %s"
-    result = DBConnection.execute_query(sql, (domain,))
+    sql = (
+        """SELECT id, model_name, model_definition FROM model_definition WHERE domain='{}'"""
+        .format(domain))
+    result = DBConnection.execute_query(sql)
     if result:
         return result[0][0], result[0][1], result[0][2]
     return ()
