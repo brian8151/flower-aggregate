@@ -51,3 +51,43 @@ def get_model_client_training_record(workflow_trace_id, domain):
     else:
         logger.error("No record found for domain: {0}, workflow_trace_id: {1}".format(domain, workflow_trace_id))
         return None
+
+
+def save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_hash, loss, num_examples, metrics,
+                                parameters):
+    try:
+        connection = DBConnection.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+
+            # Insert metrics
+            loss = round(loss, 10)  # Round the loss value to 10 decimal places
+            accuracy = round(metrics['accuracy'], 10)  # Round the accuracy value to 10 decimal places
+            insert_metrics_query = "INSERT INTO metrics (accuracy) VALUES (%s)"
+            cursor.execute(insert_metrics_query, (accuracy,))
+            metrics_id = cursor.lastrowid
+
+            # Insert model aggregate weights result
+            insert_aggregate_weights_query = """INSERT INTO model_aggregate_weights (workflow_trace_id, model_id, parameters) VALUES (%s, %s, %s)"""
+            cursor.execute(insert_aggregate_weights_query, (workflow_trace_id, model_id, parameters))
+            model_weights_id = cursor.lastrowid
+
+            # Insert run model aggregation
+            insert_run_model_aggregation_query = """
+                INSERT INTO run_model_aggregation 
+                (workflow_trace_id, client_id, model_id, group_hash, model_weights_id, loss, num_examples, metrics_id, status) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_run_model_aggregation_query, (
+            workflow_trace_id, client_id, model_id, group_hash, model_weights_id, loss, num_examples, metrics_id,
+            'Complete'))
+
+            connection.commit()
+            logger.info("Model aggregate result saved successfully")
+    except Error as e:
+        logger.error(f"Error saving model aggregate result: {e}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            logger.info("MySQL cursor and connection are closed")

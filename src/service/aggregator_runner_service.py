@@ -1,6 +1,6 @@
 import numpy as np
 from src.util import log
-from src.repository.model.model_data_repositoty import get_model_client_training_record
+from src.repository.model.model_data_repositoty import get_model_client_training_record, save_model_aggregate_result
 from src.ml.model_builder import decompress_weights, compress_weights
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.server.client_proxy import ClientProxy
@@ -51,17 +51,13 @@ class AggregatorRunner:
                 for idx, weight in enumerate(weights_only):
                     logger.info(f"Weight {idx} shape: {weight.shape}, dtype: {weight.dtype}")
 
-                logger.info(f"weights_only ndarrays_to_parameters")
                 agg_parameters = ndarrays_to_parameters(weights_only)
-
                 # Aggregate metrics
-                logger.info(f"weighted_average")
                 aggregated_metrics = weighted_average(metrics_collected)
                 logger.info(f"Aggregated Metrics: {aggregated_metrics}")
 
                 fedavg = FedAvg(
                     fraction_fit=0.2,
-                    fraction_evaluate=0.0,  # Disable evaluation for demo purpose
                     min_fit_clients=1,
                     min_available_clients=1,
                     fit_metrics_aggregation_fn=weighted_metrics_average
@@ -80,21 +76,14 @@ class AggregatorRunner:
                     )
                 ]
                 failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]] = []
-
                 logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
-
-                logger.info(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
-                    logger.info(".......................saving parameters_aggregated.......................")
-                    save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated)
-                    # Convert `Parameters` to `List[np.ndarray]`
-                    aggregated_ndarrays = parameters_to_ndarrays(parameters_aggregated)
-                    # print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
-                    # Format and print metrics
+                    save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated, metrics_aggregated)
                     readable_metrics = format_metrics(metrics_aggregated)
                     logger.info(f"Aggregated Metrics: {readable_metrics}")
-
+                else:
+                    logger.error(f"No fed strategy parameters from fedavg for workflow_trace_id {workflow_trace_id}")
             else:
                 logger.error(f"No training record found for workflow_trace_id {workflow_trace_id}")
         except Exception as e:
@@ -102,10 +91,14 @@ class AggregatorRunner:
             raise
 
 
-def save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated):
+def save_parameters_aggregated_to_db(workflow_trace_id, client_id, model_id,group_hash, parameters_aggregated, metrics_aggregated, num_examples):
     """Save the aggregated parameters to the database."""
     parameters_compressed = compress_weights(parameters_aggregated)
-    logger.info(f"save parameters weights to db DB Model weights: {parameters_compressed}")
+    logger.info(f"{workflow_trace_id} - {domain} save parameters weights to db DB Model weights")
+    loss = metrics_aggregated.get("loss", 0.0)
+    accuracy = metrics_aggregated.get("accuracy", 0.0)
+    metrics = {"accuracy": accuracy, "loss": loss}
+    save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_hash, loss, num_examples, metrics, parameters_compressed)
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     logger.info(" set up weighted_average")
