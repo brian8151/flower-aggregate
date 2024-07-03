@@ -1,7 +1,7 @@
 import numpy as np
 from src.util import log
 from src.repository.model.model_data_repositoty import get_model_client_training_record
-from src.ml.model_builder import decompress_weights
+from src.ml.model_builder import decompress_weights, compress_weights
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.server.client_proxy import ClientProxy
 from flwr.common import Code, FitRes, Status, EvaluateRes, EvaluateIns
@@ -9,7 +9,6 @@ from flwr.common.typing import List, Tuple, Union
 from flwr.common import Metrics
 from src.common.onyx_custom_client_proxy import CustomClientProxy
 from src.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
-from src.ml.model_builder import compress_weights
 logger = log.init_logger()
 
 
@@ -25,13 +24,14 @@ class AggregatorRunner:
             if training_record:
                 logger.info(f"Retrieved training record: {training_record}")
                 client_id = training_record['client_id']
-                weights = training_record['parameters']
+                weights_encoded = training_record['parameters']
                 num_examples = training_record['num_examples']
                 loss = training_record['loss']
-                ser_parameters = ndarrays_to_parameters(weights)
+                decompressed_weights = decompress_weights(weights_encoded)
+                ser_parameters = ndarrays_to_parameters(decompressed_weights)
                 weights_as_ndarrays = parameters_to_ndarrays(ser_parameters)
                 # Deserialize parameters
-                #weights = decompress_weights(weights_encoded)
+
                 metrics = {"accuracy": training_record['accuracy']}
                 metrics_collected = []
                 weights_collected = []
