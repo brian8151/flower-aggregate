@@ -55,7 +55,7 @@ class AggregatorRunner:
                     fraction_evaluate=0.0,  # Disable evaluation for demo purpose
                     min_fit_clients=1,
                     min_available_clients=1,
-                    fit_metrics_aggregation_fn=weighted_average,
+                    fit_metrics_aggregation_fn=weighted_metrics_average,
                     initial_parameters=agg_parameters,
                 )
                 client_proxy = CustomClientProxy(cid=client_id)
@@ -125,7 +125,7 @@ def format_metrics(metrics):
     """Format metrics into a readable string."""
     return "\n".join([f"{key}: {value}" for key, value in metrics.items()])
 
-def weighted_average(metrics):
+def weighted_metrics_average(metrics):
     accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
     losses = [num_examples * m["loss"] for num_examples, m in metrics]
     examples = [num_examples for num_examples, _ in metrics]
