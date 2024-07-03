@@ -27,29 +27,33 @@ class AggregatorRunner:
                 weights_encoded = training_record['parameters']
                 num_examples = training_record['num_examples']
                 loss = training_record['loss']
+
+                # Decompress weights
                 decompressed_weights = decompress_weights(weights_encoded)
                 ser_parameters = ndarrays_to_parameters(decompressed_weights)
                 weights_as_ndarrays = parameters_to_ndarrays(ser_parameters)
-                # Deserialize parameters
 
                 metrics = {"accuracy": training_record['accuracy']}
                 metrics_collected = []
                 weights_collected = []
                 metrics_collected.append((num_examples, metrics))
                 weights_collected.append((num_examples, weights_as_ndarrays))
+
                 logger.info(f"metrics_collected: {metrics_collected}")
                 weights_only = [weight for _, weights in weights_collected for weight in weights]
+
                 logger.info(f"loop weights_only")
                 for idx, weight in enumerate(weights_only):
-                    print(f"Weight {idx} shape: {weight.shape}, dtype: {weight.dtype}")
+                    logger.info(f"Weight {idx} shape: {weight.shape}, dtype: {weight.dtype}")
+
                 logger.info(f"weights_only ndarrays_to_parameters")
                 agg_parameters = ndarrays_to_parameters(weights_only)
+
                 # Aggregate metrics
                 logger.info(f"weighted_average")
                 aggregated_metrics = weighted_average(metrics_collected)
                 logger.info(f"Aggregated Metrics: {aggregated_metrics}")
-                # Assuming agg_parameters are now correctly processed
-                # fedavg = FedAvg()
+
                 fedavg = FedAvg(
                     fraction_fit=0.2,
                     fraction_evaluate=0.0,  # Disable evaluation for demo purpose
@@ -57,6 +61,7 @@ class AggregatorRunner:
                     min_available_clients=1,
                     fit_metrics_aggregation_fn=weighted_metrics_average,
                 )
+
                 client_proxy = CustomClientProxy(cid=client_id)
                 results: List[Tuple[ClientProxy, FitRes]] = [
                     (
@@ -65,13 +70,15 @@ class AggregatorRunner:
                             status=Status(code=Code.OK, message="Success"),
                             parameters=agg_parameters,
                             num_examples=num_examples,
-                            metrics=metrics_collected,
+                            metrics=metrics,  # Use metrics dictionary directly
                         ),
                     )
                 ]
                 failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]] = []
+
                 logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
+
                 logger.info(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
                     logger.info(".......................saving parameters_aggregated.......................")
