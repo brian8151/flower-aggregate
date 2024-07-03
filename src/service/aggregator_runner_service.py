@@ -79,7 +79,11 @@ class AggregatorRunner:
                 logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
                 if parameters_aggregated is not None:
-                    save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated, metrics_aggregated)
+                    clent_id =1
+                    group_hash= "abcde123"
+                    model_info = get_model_info(domain)
+                    model_id, model_name, model_definition = model_info
+                    save_parameters_aggregated_to_db(workflow_trace_id, clent_id, model_id, group_hash, parameters_aggregated, metrics_aggregated, num_examples)
                     readable_metrics = format_metrics(metrics_aggregated)
                     logger.info(f"Aggregated Metrics: {readable_metrics}")
                 else:

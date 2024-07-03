@@ -4,6 +4,16 @@ from src.util import log
 logger = log.init_logger()
 
 
+def get_model_info(domain):
+    """
+    Returns an empty tuple if no record is found.
+    """
+    sql = "SELECT id, model_name, model_definition FROM model_definition WHERE domain = %s"
+    result = DBConnection.execute_query(sql, (domain,))
+    if result:
+        return result[0][0], result[0][1], result[0][2]
+    return ()
+
 def get_model_client_training_record(workflow_trace_id, domain):
     """
     Retrieve the training record for a given domain and workflow trace ID.
