@@ -85,6 +85,7 @@ class AggregatorRunner:
                     save_parameters_aggregated_to_db(workflow_trace_id, client_id, model_id, group_hash, parameters_aggregated, metrics_aggregated, num_examples)
                     readable_metrics = format_metrics(metrics_aggregated)
                     logger.info(f"Aggregated Metrics: {readable_metrics}")
+
                 else:
                     logger.error(f"No fed strategy parameters from fedavg for workflow_trace_id {workflow_trace_id}")
             else:
