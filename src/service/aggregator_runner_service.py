@@ -85,7 +85,7 @@ class AggregatorRunner:
 
 def save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated):
     """Save the aggregated parameters to the database."""
-    parameters_compressed = compress_parameters(parameters_aggregated)
+    parameters_compressed = compress_weights(parameters_aggregated)
     logger.info(f"save parameters weights to db DB Model weights: {parameters_compressed}")
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
