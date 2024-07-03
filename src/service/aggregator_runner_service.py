@@ -97,7 +97,7 @@ class AggregatorRunner:
 def save_parameters_aggregated_to_db(workflow_trace_id, client_id, model_id,group_hash, parameters_aggregated, metrics_aggregated, num_examples):
     """Save the aggregated parameters to the database."""
     parameters_compressed = compress_weights(parameters_aggregated)
-    logger.info(f"{workflow_trace_id} - {domain} save parameters weights to db DB Model weights")
+    logger.info(f"{workflow_trace_id}  save parameters weights to db DB Model weights")
     loss = metrics_aggregated.get("loss", 0.0)
     accuracy = metrics_aggregated.get("accuracy", 0.0)
     metrics = {"accuracy": accuracy, "loss": loss}
