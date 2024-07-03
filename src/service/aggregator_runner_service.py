@@ -93,7 +93,7 @@ class AggregatorRunner:
                     # print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
                     # Format and print metrics
                     readable_metrics = format_metrics(metrics_aggregated)
-                    logger.info("Aggregated Metrics:", readable_metrics)
+                    logger.info(f"Aggregated Metrics: {readable_metrics}")
 
             else:
                 logger.error(f"No training record found for workflow_trace_id {workflow_trace_id}")
@@ -146,5 +146,4 @@ def weighted_metrics_average(metrics):
     result = {"accuracy": avg_accuracy}
     if avg_loss is not None:
         result["loss"] = avg_loss
-
     return result
