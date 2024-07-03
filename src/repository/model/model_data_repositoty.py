@@ -80,11 +80,22 @@ def save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_ha
             cursor.execute(insert_metrics_query, (accuracy,))
             metrics_id = cursor.lastrowid
             logger.info("save metrics - accuracy")
-            # Insert model aggregate weights result
-            insert_aggregate_weights_query = """INSERT INTO model_aggregate_weights (workflow_trace_id, model_id, parameters) VALUES (%s, %s, %s)"""
-            cursor.execute(insert_aggregate_weights_query, (workflow_trace_id, model_id, parameters))
+
+            # Find the latest version for the given model_id
+            find_latest_version_query = "SELECT MAX(version) FROM model_aggregate_weights WHERE model_id = %s"
+            cursor.execute(find_latest_version_query, (model_id,))
+            latest_version = cursor.fetchone()[0]
+            new_version = (latest_version + 1) if latest_version is not None else 1
+
+            # Insert model aggregate weights result with new version
+            insert_aggregate_weights_query = """
+                INSERT INTO model_aggregate_weights (workflow_trace_id, model_id, version, parameters) 
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(insert_aggregate_weights_query, (workflow_trace_id, model_id, new_version, parameters))
             model_weights_id = cursor.lastrowid
             logger.info("save aggregate weights")
+
             # Insert run model aggregation
             insert_run_model_aggregation_query = """
                 INSERT INTO run_model_aggregation 
