@@ -76,12 +76,12 @@ def save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_ha
             insert_metrics_query = "INSERT INTO metrics (accuracy) VALUES (%s)"
             cursor.execute(insert_metrics_query, (accuracy,))
             metrics_id = cursor.lastrowid
-
+            logger.info("save metrics - accuracy")
             # Insert model aggregate weights result
             insert_aggregate_weights_query = """INSERT INTO model_aggregate_weights (workflow_trace_id, model_id, parameters) VALUES (%s, %s, %s)"""
             cursor.execute(insert_aggregate_weights_query, (workflow_trace_id, model_id, parameters))
             model_weights_id = cursor.lastrowid
-
+            logger.info("save aggregate weights")
             # Insert run model aggregation
             insert_run_model_aggregation_query = """
                 INSERT INTO run_model_aggregation 
@@ -91,7 +91,7 @@ def save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_ha
             cursor.execute(insert_run_model_aggregation_query, (
             workflow_trace_id, client_id, model_id, group_hash, model_weights_id, loss, num_examples, metrics_id,
             'Complete'))
-
+            logger.info("save run model aggregation")
             connection.commit()
             logger.info("Model aggregate result saved successfully")
     except Error as e:
