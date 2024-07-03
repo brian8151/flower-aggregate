@@ -49,7 +49,15 @@ class AggregatorRunner:
                 aggregated_metrics = weighted_average(metrics_collected)
                 print("Aggregated Metrics:", aggregated_metrics)
                 # Assuming agg_parameters are now correctly processed
-                fedavg = FedAvg()
+                # fedavg = FedAvg()
+                fedavg = FedAvg(
+                    fraction_fit=0.2,
+                    fraction_evaluate=0.0,  # Disable evaluation for demo purpose
+                    min_fit_clients=1,
+                    min_available_clients=1,
+                    fit_metrics_aggregation_fn=weighted_average,
+                    initial_parameters=agg_parameters,
+                )
                 client_proxy = CustomClientProxy(cid=client_id)
                 results: List[Tuple[ClientProxy, FitRes]] = [
                     (
@@ -64,6 +72,10 @@ class AggregatorRunner:
                 ]
                 failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]] = []
                 print(f"fedavg.aggregate_fit --------------------->")
+
+
+
+
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
                 print(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
@@ -112,3 +124,9 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 def format_metrics(metrics):
     """Format metrics into a readable string."""
     return "\n".join([f"{key}: {value}" for key, value in metrics.items()])
+
+def weighted_average(metrics):
+    accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
+    losses = [num_examples * m["loss"] for num_examples, m in metrics]
+    examples = [num_examples for num_examples, _ in metrics]
+    return {"accuracy": sum(accuracies) / sum(examples), "loss": sum(losses) / sum(examples)}
