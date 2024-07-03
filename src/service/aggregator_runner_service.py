@@ -22,7 +22,7 @@ class AggregatorRunner:
         try:
             training_record = get_model_client_training_record(workflow_trace_id, domain)
             if training_record:
-                logger.info(f"Retrieved training record: {training_record}")
+                logger.info(f"Retrieved {domain} training record: {training_record}")
                 logger.info(f"Training record keys: {list(training_record.keys())}")
                 client_id = training_record['client_id']
                 weights_encoded = training_record['parameters']
