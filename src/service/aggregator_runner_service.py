@@ -9,7 +9,7 @@ from flwr.common.typing import List, Tuple, Union
 from flwr.common import Metrics
 from src.common.onyx_custom_client_proxy import CustomClientProxy
 from src.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
-
+from src.ml.model_builder import compress_weights
 logger = log.init_logger()
 
 
@@ -37,7 +37,6 @@ class AggregatorRunner:
                 weights_collected = []
                 metrics_collected.append((num_examples, metrics))
                 weights_collected.append((num_examples, weights_as_ndarrays))
-                logger.info(f"weights_collected: {weights_collected}")
                 logger.info(f"metrics_collected: {metrics_collected}")
                 weights_only = [weight for _, weights in weights_collected for weight in weights]
                 logger.info(f"loop weights_only")
@@ -69,10 +68,13 @@ class AggregatorRunner:
                 print(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
                     print(".......................saving parameters_aggregated.......................")
+                    save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated)
                     # Convert `Parameters` to `List[np.ndarray]`
                     aggregated_ndarrays = parameters_to_ndarrays(parameters_aggregated)
-                    print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
-                    print(f"metrics_aggregated {metrics_aggregated}")
+                    # print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
+                    # Format and print metrics
+                    readable_metrics = format_metrics(metrics_aggregated)
+                    print("Aggregated Metrics:", readable_metrics)
 
             else:
                 logger.error(f"No training record found for workflow_trace_id {workflow_trace_id}")
@@ -81,6 +83,10 @@ class AggregatorRunner:
             raise
 
 
+def save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated):
+    """Save the aggregated parameters to the database."""
+    parameters_compressed = compress_parameters(parameters_aggregated)
+    logger.info(f"save parameters weights to db DB Model weights: {parameters_compressed}")
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     logger.info(" set up weighted_average")
@@ -102,3 +108,7 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
 
     # Aggregate and return custom metric (weighted average)
     return {"accuracy": weighted_avg_accuracy}
+
+def format_metrics(metrics):
+    """Format metrics into a readable string."""
+    return "\n".join([f"{key}: {value}" for key, value in metrics.items()])
