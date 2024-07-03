@@ -18,11 +18,13 @@ class AggregatorRunner:
     def __init__(self):
         pass
 
-    def aggregate(self, workflow_trace_id, domain):
+    def aggregate(self, workflow_trace_id, domain, model_id, group_hash):
+        logger.info(
+            f"Start aggregate: Domain: {domain}, modelId: {model_id}, group hash: {group_hash}")
         try:
             training_record = get_model_client_training_record(workflow_trace_id, domain)
             if training_record:
-                logger.info(f"Retrieved {domain} training record: {training_record}")
+                logger.info(f"Retrieved training record: {training_record}")
                 logger.info(f"Training record keys: {list(training_record.keys())}")
                 client_id = training_record['client_id']
                 model_id = training_record['model_id']
@@ -80,7 +82,6 @@ class AggregatorRunner:
                 logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
                 if parameters_aggregated is not None:
-                    group_hash= "abcde123"
                     logger.info(f"saving  parameters_aggregated, model id:{model_id}")
                     save_parameters_aggregated_to_db(workflow_trace_id, client_id, model_id, group_hash, parameters_aggregated, metrics_aggregated, num_examples)
                     readable_metrics = format_metrics(metrics_aggregated)

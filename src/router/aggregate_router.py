@@ -23,7 +23,7 @@ async def check_health():
 async def aggregate(request: AggregatorRequest):
     try:
         aggregator_runner = AggregatorRunner()
-        aggregator_runner.aggregate(request.workflow_trace_id, request.domain_type)
+        aggregator_runner.aggregate(request.workflow_trace_id, request.domain_type, request.model_id, request.group_hash)
         return {"status": "success", "domain": request.domain_type, "workflowTraceId": request.workflow_trace_id}
     except Exception as e:
         logger.error(f"Error aggregate fit: {e}")

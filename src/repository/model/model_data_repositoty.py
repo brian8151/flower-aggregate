@@ -1,5 +1,6 @@
 from src.repository.db.db_connection import DBConnection
 from src.util import log
+from datetime import datetime
 
 logger = log.init_logger()
 
@@ -94,6 +95,27 @@ def save_model_aggregate_result(workflow_trace_id, client_id, model_id, group_ha
             workflow_trace_id, client_id, model_id, group_hash, model_weights_id, loss, num_examples, metrics_id,
             'Complete'))
             logger.info("save run model aggregation")
+            # Find model_collaboration_run by group_hash
+            find_collaboration_run_query = "SELECT id, current_round, rounds FROM model_collaboration_run WHERE group_hash = %s"
+            cursor.execute(find_collaboration_run_query, (group_hash,))
+            collaboration_run = cursor.fetchone()
+
+            if collaboration_run:
+                collaboration_run_id, current_round, rounds = collaboration_run
+                new_round = current_round + 1
+
+                # Update current_round and set started_at if initial round
+                update_collaboration_run_query = """
+                             UPDATE model_collaboration_run 
+                             SET current_round = %s, 
+                                 started_at = IF(current_round = 0, %s, started_at), 
+                                 status = IF(%s = rounds, 'Complete', status), 
+                                 completed_at = IF(%s = rounds, %s, completed_at)
+                             WHERE id = %s
+                         """
+                cursor.execute(update_collaboration_run_query, (
+                    new_round, datetime.now(), new_round, new_round, datetime.now(), collaboration_run_id))
+                logger.info("update model collaboration run")
             connection.commit()
             logger.info("Model aggregate result saved successfully")
     except Error as e:
