@@ -59,7 +59,7 @@ class AggregatorRunner:
                     fraction_evaluate=0.0,  # Disable evaluation for demo purpose
                     min_fit_clients=1,
                     min_available_clients=1,
-                    fit_metrics_aggregation_fn=weighted_metrics_average,
+                    fit_metrics_aggregation_fn=weighted_metrics_average
                 )
 
                 client_proxy = CustomClientProxy(cid=client_id)
@@ -71,6 +71,7 @@ class AggregatorRunner:
                             parameters=agg_parameters,
                             num_examples=num_examples,
                             metrics=metrics,  # Use metrics dictionary directly
+                            loss=loss  # Add loss if available
                         ),
                     )
                 ]
