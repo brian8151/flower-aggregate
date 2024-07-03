@@ -47,7 +47,7 @@ class AggregatorRunner:
                 # Aggregate metrics
                 logger.info(f"weighted_average")
                 aggregated_metrics = weighted_average(metrics_collected)
-                logger.info("Aggregated Metrics:", aggregated_metrics)
+                logger.info(f"Aggregated Metrics: {aggregated_metrics}")
                 # Assuming agg_parameters are now correctly processed
                 # fedavg = FedAvg()
                 fedavg = FedAvg(
@@ -70,8 +70,7 @@ class AggregatorRunner:
                     )
                 ]
                 failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]] = []
-                logger.info(f"fedavg.aggregate_fit --------------------->")
-
+                logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
                 logger.info(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
