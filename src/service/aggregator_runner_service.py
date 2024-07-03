@@ -28,7 +28,8 @@ class AggregatorRunner:
                 weights = training_record['parameters']
                 num_examples = training_record['num_examples']
                 loss = training_record['loss']
-                weights_as_ndarrays = parameters_to_ndarrays(weights)
+                ser_parameters = ndarrays_to_parameters(weights)
+                weights_as_ndarrays = parameters_to_ndarrays(ser_parameters)
                 # Deserialize parameters
                 #weights = decompress_weights(weights_encoded)
                 metrics = {"accuracy": training_record['accuracy']}
