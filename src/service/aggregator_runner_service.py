@@ -25,6 +25,7 @@ class AggregatorRunner:
                 logger.info(f"Retrieved {domain} training record: {training_record}")
                 logger.info(f"Training record keys: {list(training_record.keys())}")
                 client_id = training_record['client_id']
+                model_id = training_record['model_id']
                 weights_encoded = training_record['parameters']
                 num_examples = training_record['num_examples']
                 accuracy = training_record.get('accuracy')
@@ -79,11 +80,9 @@ class AggregatorRunner:
                 logger.info(f"---------- call fedavg.aggregate_fit --------------------->")
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
                 if parameters_aggregated is not None:
-                    clent_id =1
                     group_hash= "abcde123"
-                    model_id, model_name, model_definition = get_model_info(domain)
                     logger.info(f"saving  parameters_aggregated, model id:{model_id}")
-                    save_parameters_aggregated_to_db(workflow_trace_id, clent_id, model_id, group_hash, parameters_aggregated, metrics_aggregated, num_examples)
+                    save_parameters_aggregated_to_db(workflow_trace_id, client_id, model_id, group_hash, parameters_aggregated, metrics_aggregated, num_examples)
                     readable_metrics = format_metrics(metrics_aggregated)
                     logger.info(f"Aggregated Metrics: {readable_metrics}")
                 else:
