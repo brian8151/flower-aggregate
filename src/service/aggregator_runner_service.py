@@ -47,7 +47,7 @@ class AggregatorRunner:
                 # Aggregate metrics
                 logger.info(f"weighted_average")
                 aggregated_metrics = weighted_average(metrics_collected)
-                print("Aggregated Metrics:", aggregated_metrics)
+                logger.info("Aggregated Metrics:", aggregated_metrics)
                 # Assuming agg_parameters are now correctly processed
                 # fedavg = FedAvg()
                 fedavg = FedAvg(
@@ -56,7 +56,6 @@ class AggregatorRunner:
                     min_fit_clients=1,
                     min_available_clients=1,
                     fit_metrics_aggregation_fn=weighted_metrics_average,
-                    initial_parameters=agg_parameters,
                 )
                 client_proxy = CustomClientProxy(cid=client_id)
                 results: List[Tuple[ClientProxy, FitRes]] = [
@@ -71,22 +70,19 @@ class AggregatorRunner:
                     )
                 ]
                 failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]] = []
-                print(f"fedavg.aggregate_fit --------------------->")
-
-
-
+                logger.info(f"fedavg.aggregate_fit --------------------->")
 
                 parameters_aggregated, metrics_aggregated = fedavg.aggregate_fit(1, results, failures)
-                print(f"check parameters_aggregated --------------------->")
+                logger.info(f"check parameters_aggregated --------------------->")
                 if parameters_aggregated is not None:
-                    print(".......................saving parameters_aggregated.......................")
+                    logger.info(".......................saving parameters_aggregated.......................")
                     save_parameters_aggregated_to_db(workflow_trace_id, domain, parameters_aggregated)
                     # Convert `Parameters` to `List[np.ndarray]`
                     aggregated_ndarrays = parameters_to_ndarrays(parameters_aggregated)
                     # print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
                     # Format and print metrics
                     readable_metrics = format_metrics(metrics_aggregated)
-                    print("Aggregated Metrics:", readable_metrics)
+                    logger.info("Aggregated Metrics:", readable_metrics)
 
             else:
                 logger.error(f"No training record found for workflow_trace_id {workflow_trace_id}")
