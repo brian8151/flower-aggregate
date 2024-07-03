@@ -71,7 +71,6 @@ class AggregatorRunner:
                             parameters=agg_parameters,
                             num_examples=num_examples,
                             metrics=metrics,  # Use metrics dictionary directly
-                            loss=loss  # Add loss if available
                         ),
                     )
                 ]
