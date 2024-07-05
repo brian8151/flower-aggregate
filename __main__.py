@@ -20,7 +20,7 @@ def create_app():
     @app.on_event("startup")
     def on_startup():
         try:
-            logging.info("Aikya FL Server started and is listening on http://0.0.0.0:7000")
+            logging.info("Aikya FL Server started and is listening on http://0.0.0.0:5000")
             print_tensorflow_version()
         except Exception as e:
             logging.error("Unexpected error: %s", e)
@@ -45,4 +45,4 @@ def create_app():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     app = create_app()
-    uvicorn.run(app, host="0.0.0.0", port=7000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
