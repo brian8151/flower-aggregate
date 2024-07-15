@@ -104,16 +104,16 @@ def main():
         default=0,
         help="Partition of the dataset (0, 1, or 2).",
     )
-    parser.add_argument(
-        "csv_file_name",
-        type=str,
-        help="Name of the CSV file to load data from."
-    )
+    # parser.add_argument(
+    #     "csv_file_name",
+    #     type=str,
+    #     help="Name of the CSV file to load data from."
+    # )
     args = parser.parse_args()
 
     # Construct the file path
     # file_path = f'/apps/data/{args.csv_file_name}'
-    file_path1= f'/apps/data/mock_payment_data-0.3.csv'
+    file_path1= f'/apps/data/payment.csv'
     print("File path1:", file_path1)
     # Instantiate FlwrMachineLearning class
     # Setup TensorFlow and load data
