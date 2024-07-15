@@ -122,6 +122,8 @@ def main():
     client_id = f"client_{args.partition_id}"
     print("client_id:", client_id)
     predictions = model.predict(x_test)
+    print(
+        "################################## Original prediction with default weight ##################################")
     print("Predictions:", predictions)
     # Get model weights
     weights = model.get_weights()
@@ -203,7 +205,7 @@ def main():
             print(".......................rerun model with aggregated parameters.......................")
             model.set_weights(aggregated_ndarrays)
             predictions = model.predict(x_test)
-            print(".......................New prediction with aggregated parameters.......................")
+            print("################################## New prediction with aggregated parameters ##################################")
             print("New Predictions:", predictions)
 
     else:
