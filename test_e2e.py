@@ -144,7 +144,7 @@ def main():
     # Instantiate FlwrMachineLearning class
     # Setup TensorFlow and load data
     print("rerun model")
-    model1, x_train1, y_train1, x_test1, y_test1 = setup_and_load_data(args.partition_id, file_path2)
+    model1, x_train1, y_train1, x_test1, y_test1 = setup_and_load_data(file_path2)
     print("now run fit")
     fit_weights, x_train_length, additional_info = fit(weights_from_db, model1, x_train1, y_train1, x_test1, y_test1)
     print("Fit Model weights:", fit_weights)
