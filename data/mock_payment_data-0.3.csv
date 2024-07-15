@@ -1,0 +1,6 @@
+transaction_amount,transaction_type,customer_type,is_fraudulent
+100.0,Online,New,0
+250.0,InStore,Regular,0
+150.0,Online,VIP,1
+350.0,InStore,VIP,0
+120.0,Online,New,1

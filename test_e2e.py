@@ -113,7 +113,7 @@ def main():
 
     # Construct the file path
     # file_path = f'/apps/data/{args.csv_file_name}'
-    file_path1= f'/apps/data/payment.csv'
+    file_path1= f'/apps/data/mock_payment_data-0.3.csv'
     print("File path1:", file_path1)
     # Instantiate FlwrMachineLearning class
     # Setup TensorFlow and load data
@@ -148,7 +148,7 @@ def main():
     print("now run fit")
     fit_weights, x_train_length, additional_info = fit(weights_from_db, model1, x_train1, y_train1, x_test1, y_test1)
     print("Fit Model weights:", fit_weights)
-    loss, num_examples, metrics = client_evaluate(model1, weights_from_db, x_test1, y_test1);
+    loss, num_examples, metrics = client_evaluate(model1, weights_from_db, x_test1, y_test1)
     # Print or use the results
     print(f"Loss: {loss}")
     print(f"Number of Test Examples: {num_examples}")
