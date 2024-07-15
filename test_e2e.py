@@ -198,7 +198,8 @@ def main():
             aggregated_ndarrays = parameters_to_ndarrays(parameters_aggregated)
             print("saved parameters_aggregated to db DB Model weights:", aggregated_ndarrays)
             print(f"metrics_aggregated {metrics_aggregated}")
-
+            print("\n")
+            print("\n")
             print(".......................rerun model with aggregated parameters.......................")
             model.set_weights(aggregated_ndarrays)
             predictions = model.predict(x_test)
