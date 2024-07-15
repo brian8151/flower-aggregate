@@ -7,13 +7,12 @@ logger = log.init_logger()
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.server.client_proxy import ClientProxy
 from flwr.common import Code, FitRes, Status, EvaluateRes, EvaluateIns
-from src.ml.flwr_machine_learning import setup_and_load_data
 from src.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
-from src.protocol.simple_message import send_message, receive_message
 from flwr.common.typing import List, Tuple, Union
 from flwr.common import Metrics
 import tensorflow as tf
 from flwr.server.client_manager import SimpleClientManager
+from src.test.data_loader import setup_and_load_data, send_message, receive_message
 # In-memory "database"
 memory_db = {}
 message_queue = []
