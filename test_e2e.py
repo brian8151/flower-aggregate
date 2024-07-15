@@ -117,7 +117,7 @@ def main():
     print("File path1:", file_path1)
     # Instantiate FlwrMachineLearning class
     # Setup TensorFlow and load data
-    model, x_train, y_train, x_test, y_test = setup_and_load_data(args.partition_id, file_path1)
+    model, x_train, y_train, x_test, y_test = setup_and_load_data(file_path1)
     # Generate client ID
     client_id = f"client_{args.partition_id}"
     print("client_id:", client_id)
