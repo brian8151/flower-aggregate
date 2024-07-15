@@ -13,6 +13,7 @@ class DataLoader:
         self.filepath = filepath
 
     def load_data(self):
+        print(f"load_data: {self.filepath}")
         data = pd.read_csv(self.filepath)
         features = data.drop('is_fraudulent', axis=1)
         labels = data['is_fraudulent']
